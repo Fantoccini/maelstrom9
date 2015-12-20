@@ -3,13 +3,12 @@ import os
 import urllib
 import requests
 import json
-from redis import StrictRedis
+import redis
 from flask import Flask, g, request, redirect, url_for, render_template, session, jsonify
 
 application = Flask(__name__)
 
-REIDS_HOST = os.getenv("REDIS_HOST", "localhost")
-REDIS_PORT = os.getenv("REDIS_PORT", 6379)
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 API_ROOT = 'https://bbs.net9.org:8080'
 
 application.secret_key = os.urandom(24)
@@ -17,7 +16,7 @@ application.secret_key = os.urandom(24)
 
 @application.before_request
 def before_request():
-    g.db = StrictRedis(REIDS_HOST, REDIS_PORT)
+    g.db = redis.from_url(REDIS_URL)
 
 
 @application.route('/auth')

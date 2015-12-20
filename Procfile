@@ -1,0 +1,1 @@
+web: gunicorn --chdir ./maelstrom9 application:application --log-file=-
