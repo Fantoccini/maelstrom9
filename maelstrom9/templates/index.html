@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h2>IFTTT Maker Channel Settings {{ user_id }}</h2>
+    {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+    <form action="{{ url_for('index') }}" method=post>
+        <dl>
+            <dt>IFTTT Maker Key:
+            <dd><input type=text name=maker_key value={{ maker_key }}>
+            <dd><input type=submit value=Update>
+        </dl>
+    </form>
+{% endblock %}
