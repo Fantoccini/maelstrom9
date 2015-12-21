@@ -21,11 +21,18 @@ def before_request():
 
 @application.route('/auth')
 def auth():
-    params = {'session': request.args['access_token']}
+    params = {'redirect_uri': url_for('auth', _external=True),
+              'grant_type': 'authorization_code',
+              'code': request.args['code'],
+              'client_id': g.db.hget('config', 'client_id'),
+              'client_secret': g.db.hget('config', 'client_secret')}
+    r = requests.get(API_ROOT + '/auth/token', params=params)
+    token_json = r.json()
+    params = {'session': token_json['access_token']}
     r = requests.get(API_ROOT + '/user/detail', params=params)
     user_id = r.json().get("userid")
     if user_id:
-        g.db.hset("user_token", user_id, json.dumps(request.args))
+        g.db.hset("user_token", user_id, json.dumps(token_json))
         session['logged_in'] = True
         session['user_id'] = user_id
         return redirect(url_for('index'))
@@ -38,7 +45,7 @@ def index():
     if g.db.hexists('config', 'client_id') and g.db.hexists('config', 'client_secret'):
         if not session.get("logged_in"):
             query = [("redirect_uri", url_for('auth', _external=True)),
-                     ("response_type", "token"),
+                     ("response_type", "code"),
                      ("client_id", g.db.hget('config', 'client_id'))]
             return redirect(API_ROOT + '/auth/auth?' + urllib.urlencode(query))
         user_id = session['user_id']
