@@ -36,7 +36,7 @@ def auth():
         g.db.hset("user_token", user_id, json.dumps(token_json))
         c_uuid = uuid.uuid4()
         resp = redirect(url_for('index'))
-        g.db.setex("c_uuid_" + c_uuid, 2592000, user_id)
+        g.db.set("c_uuid_" + c_uuid, user_id, ex=2592000)
         resp.set_cookie("c_uuid", c_uuid)
         return resp
     return jsonify(r.text)
