@@ -4,7 +4,8 @@ import urllib
 import requests
 import json
 import redis
-from flask import Flask, g, request, redirect, url_for, render_template, session, jsonify
+import uuid
+from flask import Flask, g, request, redirect, url_for, render_template, jsonify
 
 application = Flask(__name__)
 
@@ -33,9 +34,11 @@ def auth():
     user_id = r.json().get("userid")
     if user_id:
         g.db.hset("user_token", user_id, json.dumps(token_json))
-        session['logged_in'] = True
-        session['user_id'] = user_id
-        return redirect(url_for('index'))
+        c_uuid = uuid.uuid4()
+        resp = redirect(url_for('index'))
+        g.db.setex("c_uuid_" + c_uuid, 2592000, user_id)
+        resp.set_cookie("c_uuid", c_uuid)
+        return resp
     return jsonify(r.text)
 
 
@@ -43,12 +46,15 @@ def auth():
 def index():
     error = None
     if g.db.hexists('config', 'client_id') and g.db.hexists('config', 'client_secret'):
-        if not session.get("logged_in"):
+        user_id = None
+        c_uuid = request.cookies.get("c_uuid")
+        if c_uuid:
+            user_id = g.db.get("c_uuid_" + c_uuid)
+        if not user_id:
             query = [("redirect_uri", url_for('auth', _external=True)),
                      ("response_type", "code"),
                      ("client_id", g.db.hget('config', 'client_id'))]
             return redirect(API_ROOT + '/auth/auth?' + urllib.urlencode(query))
-        user_id = session['user_id']
         if request.method == 'POST':
             g.db.hset('user_maker_key', user_id, request.form['maker_key'])
         maker_key = g.db.hget('user_maker_key', user_id)
