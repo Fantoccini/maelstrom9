@@ -5,7 +5,7 @@ import requests
 import json
 import redis
 import uuid
-from flask import Flask, g, request, redirect, url_for, render_template, jsonify
+from flask import Flask, g, request, redirect, url_for, render_template, jsonify, make_response
 
 application = Flask(__name__)
 
@@ -37,7 +37,7 @@ def auth():
     if user_id:
         g.db.hset("user_token", user_id, json.dumps(token_json))
         c_uuid = uuid.uuid4()
-        resp = redirect(url_for('index'))
+        resp = make_response(redirect(url_for('index')))
         g.db.set("c_uuid_" + c_uuid, user_id, ex=2592000)
         resp.set_cookie("c_uuid", c_uuid)
         return resp
