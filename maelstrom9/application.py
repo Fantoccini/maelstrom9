@@ -28,11 +28,9 @@ def auth():
               'client_id': g.db.hget('config', 'client_id'),
               'client_secret': g.db.hget('config', 'client_secret')}
     r = requests.get(API_ROOT + '/auth/token', params=params)
-    print r.text
     token_json = r.json()
     params = {'session': token_json['access_token']}
     r = requests.get(API_ROOT + '/user/detail', params=params)
-    print r.text
     user_id = r.json().get("userid")
     if user_id:
         g.db.hset("user_token", user_id, json.dumps(token_json))
@@ -52,7 +50,6 @@ def index():
         c_uuid = request.cookies.get("c_uuid")
         if c_uuid:
             user_id = g.db.get("c_uuid_" + c_uuid)
-        print user_id, c_uuid
         if not user_id:
             query = [("redirect_uri", url_for('auth', _external=True)),
                      ("response_type", "code"),
