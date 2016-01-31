@@ -41,7 +41,7 @@ def main():
               'start': last_post_offset,
               'count': BATCH_SIZE}
     try:
-        r = requests.get(API_ROOT + '/board/post_list', params=params)\
+        r = requests.get(API_ROOT + '/board/post_list', params=params)
         posts = r.json()
     except ValueError:
         print r.text
