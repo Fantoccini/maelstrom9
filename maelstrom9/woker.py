@@ -40,7 +40,12 @@ def main():
               'mode': 'normal',
               'start': last_post_offset,
               'count': BATCH_SIZE}
-    posts = requests.get(API_ROOT + '/board/post_list', params=params).json()
+    try:
+        r = requests.get(API_ROOT + '/board/post_list', params=params)\
+        posts = r.json()
+    except ValueError:
+        print r.text
+        return
     db.hincrby('offset', BOARD_NAME, len(posts))
     for post in posts:
         if post['owner'] in all_users:
