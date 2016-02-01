@@ -3,6 +3,9 @@
     <p class="lead"><a href="https://ifttt.com/maker" target="_blank">IFTTT Maker Channel</a> Settings for {{ user_id }}
     </p>
     {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+    <p>你需要首先在 IFTTT 上申请一个账号</p>
+    <p>将 maker channel 添加到你的账号</p>
+    <p>你会获得一个 maker channel 的 API key,请把他填写在下面的方框里点提交</p>
 
     <form action="{{ url_for('index') }}" method=post>
         <div class="form-group">
@@ -11,4 +14,8 @@
         </div>
         <input type=submit class="btn btn-default" value=Update>
     </form>
+
+    <p>每隔十分钟,这个程序会读取你在 bbs_dev 版发的文章,并产生一个maker channel 的事件</p>
+    <p>事件 eventname 为 maelstrom9 , value1 是版名,即 bbs_dev, value 2 是标题, value 3 是 rowell 的 url</p>
+    <p>如果你想把这个事件转发到其他平台,请在 ifttt 里自己折腾</p>
 {% endblock %}
